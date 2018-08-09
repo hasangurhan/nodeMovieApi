@@ -6,7 +6,23 @@ const router = express.Router();
  //hepsini listele
 router.get('/',(req,res)=>{
 
-  const promise = Movie.find({});
+  const promise = Movie.aggregate([
+
+    {
+      $lookup : {
+        from : 'directors',
+        localField : 'director_id',
+        foreignField : '_id',
+        as : 'director'
+
+      }
+
+
+    },
+    {
+      $unwind:'$director'
+    }
+  ]);
   
   promise.then((data) => {
     
@@ -59,7 +75,7 @@ router.get('/:movie_id',(req,res,next)=>{
   res.json(err);
   })
   });
-
+//silme
 router.delete('/:movie_id',(req,res,next)=>{
 
     const promise = Movie.findByIdAndRemove(req.params.movie_id);
